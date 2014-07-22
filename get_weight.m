@@ -8,4 +8,5 @@
 %% H histogram
 function V = get_weight(L, R, H)
   V = sum(H(L:R));
+
 endfunction
