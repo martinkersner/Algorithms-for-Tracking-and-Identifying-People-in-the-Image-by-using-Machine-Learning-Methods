@@ -5,9 +5,10 @@
 %% Balanced Histogram Threshold
 %% inspired by http://en.wikipedia.org/wiki/Balanced_histogram_thresholding
 %% I input BW image
-%% B number of bins for histogram
-function threshold = balanced_histogram_thresholding(I, B)
-	[h, hi] = hist(reshape(I, size(I,1) * size(I,2), 1), B);
+%% BIN number of bins for histogram
+%% Returns the threshold where the binary image should be separated.
+function threshold = balanced_histogram_thresholding(I, BIN)
+  [h, hi] = hist(reshape(I, size(I,1) * size(I,2), 1), BIN);
 
   i_s = 1;
   i_e = size(h, 2);
