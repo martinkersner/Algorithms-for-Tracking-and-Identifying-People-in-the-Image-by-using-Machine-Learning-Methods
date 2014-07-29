@@ -28,12 +28,13 @@ class Annotation(QtGui.QWidget):
         self.op = output_path
         self.counter = 0
 
-        self.rotations = {'UP': 1, 'DOWN': 2, 'LEFT': 3, 'RIGHT': 4}
+        self.rotations = {'UPLEFT': 1, 'UP': 2, 'UPRIGHT': 3, 'LEFT': 4, 'RIGHT': 5, 'DOWNLEFT': 6, 'DOWN': 7, 'DOWNRIGHT': 8, 'NOTHING': 9}
 
         # initialization of status
         init_status = 'UP'
         self.status = self.rotations[init_status]
         self.status_lbl = QtGui.QLabel(init_status)
+        self.status_lbl.setAlignment(QtCore.Qt.AlignCenter)
 
         # GUI intialization
         self.pixmap = QtGui.QPixmap(self.p + self.lof[self.counter].split('-')[1])
@@ -85,7 +86,7 @@ class Annotation(QtGui.QWidget):
     def initUI(self):      
         hbox_main = QtGui.QHBoxLayout(self)
         hbox = QtGui.QHBoxLayout()
-        vbox = QtGui.QVBoxLayout()
+        grid = QtGui.QGridLayout()
 
         # Image
         self.lbl.setPixmap(self.pixmap)
@@ -98,22 +99,46 @@ class Annotation(QtGui.QWidget):
         btn_down = QtGui.QPushButton('DOWN', self)
         btn_left = QtGui.QPushButton('LEFT', self)
         btn_right = QtGui.QPushButton('RIGHT', self)
+
+        # Extented Buttons
+        btn_up_left = QtGui.QPushButton('UPLEFT', self)
+        btn_up_right = QtGui.QPushButton('UPRIGHT', self)
+        btn_down_left = QtGui.QPushButton('DOWNLEFT', self)
+        btn_down_right = QtGui.QPushButton('DOWNRIGHT', self)
+
+        btn_nothing = QtGui.QPushButton('NOTHING', self)
+
+        # Connection Buttons
         btn_up.clicked.connect(self.buttonClicked)
         btn_down.clicked.connect(self.buttonClicked)
         btn_left.clicked.connect(self.buttonClicked)
         btn_right.clicked.connect(self.buttonClicked)
 
+        btn_up_left.clicked.connect(self.buttonClicked)
+        btn_up_right.clicked.connect(self.buttonClicked)
+        btn_down_left.clicked.connect(self.buttonClicked)
+        btn_down_right.clicked.connect(self.buttonClicked)
+
+        btn_nothing.clicked.connect(self.buttonClicked)
+
         # Label
-        vbox.addWidget(self.status_lbl)
+        grid.addWidget(self.status_lbl, 0, 1)
     
         # Layouts
-        vbox.addWidget(btn_up)
-        vbox.addWidget(btn_down)
-        vbox.addWidget(btn_left)
-        vbox.addWidget(btn_right)
+        grid.addWidget(btn_up_left, 1, 0)
+        grid.addWidget(btn_up, 1, 1)
+        grid.addWidget(btn_up_right, 1, 2)
+
+        grid.addWidget(btn_left, 2, 0)
+        grid.addWidget(btn_nothing, 2, 1)
+        grid.addWidget(btn_right, 2, 2)
+
+        grid.addWidget(btn_down_left, 3, 0)
+        grid.addWidget(btn_down, 3, 1)
+        grid.addWidget(btn_down_right, 3, 2)
 
         hbox_main.addLayout(hbox)
-        hbox_main.addLayout(vbox)
+        hbox_main.addLayout(grid)
 
         self.setLayout(hbox_main)
         
