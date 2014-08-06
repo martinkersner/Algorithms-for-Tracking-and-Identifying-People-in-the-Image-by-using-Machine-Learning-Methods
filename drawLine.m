@@ -53,5 +53,5 @@ function M = drawLine(X, Y, A, H, W)
   x_tmp = H - X;
   y_tmp = W - Y;
 
-  M = M_tmp(x_tmp:x_tmp+H, y_tmp:y_tmp+W);
+  M = M_tmp(x_tmp:x_tmp+H-1, y_tmp:y_tmp+W-1);
 endfunction
