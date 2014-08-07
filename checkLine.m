@@ -2,8 +2,9 @@
 %% Martin Kersner, m.kersner@gmail.com
 %% 08-06-2014
 %%
-%% Detection of People using Depth Image Data
+%% Computes a rank of given line with respect to gradient.
 %%
+%% R   ranking of line
 %% X   X coordinates of line
 %% Y   Y coordinates of line
 %% I   examined image 
@@ -11,7 +12,7 @@ function R = checkLine(X, Y, I)
 
   % initialization
   rv = [];
-  gap = 3;
+  gap = 1;
   count = 0;
   R = 0;
 
@@ -54,6 +55,6 @@ function R = checkLine(X, Y, I)
   rv2 = rv(1:size(rv,2)-1);
   l = size(rv, 2)^2;
 
-  R = l/mean(abs(int16(rv1)-int16(rv2)));
-
+  R = l;
+  %R = l/mean(abs(int16(rv1)-int16(rv2)));
 endfunction
