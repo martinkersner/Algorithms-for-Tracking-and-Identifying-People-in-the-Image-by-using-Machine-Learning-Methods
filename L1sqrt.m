@@ -9,5 +9,5 @@
 %% E  small constant
 function N = L1sqrt(V, E)
    N = sqrt(V ./ norm(V, 1) + E);
- endfunction
+endfunction
 
