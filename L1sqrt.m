@@ -7,7 +7,7 @@
 %% N  normalized vector
 %% V  unnormalized vector
 %% E  small constant
-function N = L1sqrt(V, E)
-   N = sqrt(V ./ norm(V, 1) + E);
+function N = L1sqrt(V, E=0.01)
+  N = sqrt(V ./ norm(double(V), 1) + E);
 endfunction
 

@@ -7,6 +7,6 @@
 %% N  normalized vector
 %% V  unnormalized vector
 %% E  small constant
-function N = L2norm(V, E)
-   N = V ./ sqrt(norm(V, 2).^2 + E^2);
+function N = L2norm(V, E=0.01)
+   N = V ./ sqrt(norm(double(V), 2).^2 + E^2);
 endfunction
