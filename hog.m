@@ -9,7 +9,7 @@
 %% BIN   number of bins
 %% C     size of cell
 %% B     size of block (in measure of cells)
-function F = hog(I, BIN=9, C=6, B=3)
+function F = hog(I, BIN=9, C=6, B=3, N=1)
   h = size(I, 1);
   w = size(I, 2);
   k = [-1, 0, 1];
@@ -38,8 +38,11 @@ function F = hog(I, BIN=9, C=6, B=3)
   cells = blockproc(I, [C C], fun, 'PadPartialBlocks', true);
 
   % split to blocks
-  %fun = @(c) L2norm(c'(:)');
-  fun = @(c) L1sqrt(c'(:)');
+  if (N == 2)
+    fun = @(c) L2norm(c'(:)');
+  else
+    fun = @(c) L1sqrt(c'(:)');
+  endif
 
   blocks = blockproc(cells, [B size(histRange, 2)*B], fun, 'PadPartialBlocks', true);
 
