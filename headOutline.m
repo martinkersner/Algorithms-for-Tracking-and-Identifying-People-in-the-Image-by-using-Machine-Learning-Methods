@@ -4,8 +4,8 @@
 %%
 %% Finds a head in the normalized image, draws an outline around it
 %% and return coordinates of head center. We assume that given shapes have
-%% already been preselected. We do not deal with issues such as control of size
-%% of shape.
+%% already been preselected. We do not deal with issues such as control 
+%% of size of shape.
 %%
 %% O   output image
 %% X   X-axis coordinate (collumns)
