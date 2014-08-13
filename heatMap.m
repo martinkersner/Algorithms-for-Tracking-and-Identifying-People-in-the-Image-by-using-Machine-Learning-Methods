@@ -8,9 +8,12 @@
 %% HB   heat map per block
 %% Y    Y-axis value
 %% X    X-axis value
-function [H HB] = heatMap(H, Y, X, B)
-  H(Y, X) += 1;
+%% B    size of block
+function [H HB] = heatMap(H, Y, X, B=5)
+  if (X > 0 && Y > 0)
+    H(Y, X) += 1;
+  endif
 
-  fun = @(b) sum(b(:));
+  fun = @(b) sum(b(:)) * ones(B);
   HB = blockproc(H, [B B], fun, 'PadPartialBlocks', true);
 endfunction
