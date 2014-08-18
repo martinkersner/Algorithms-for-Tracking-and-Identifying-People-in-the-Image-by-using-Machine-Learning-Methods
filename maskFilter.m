@@ -8,14 +8,14 @@
 %% I   examined image
 %% M   mask of background
 %% B   number of bins
-function O = maskFilter(I, M, B=20)
+function [O T] = maskFilter(I, M, B=20)
   z = zeros(size(I));
 
   % filtering background
   z_tmp = I .- M;
 
   % histogram
-  [h hi] = hist(X(:), B);
+  [h hi] = hist(z_tmp(:), B);
 
   % vectors which are later employed to find local minimum
   % right shift, left shift, no shift
@@ -24,9 +24,15 @@ function O = maskFilter(I, M, B=20)
   ns = h(2:end-1);
 
   % finding local minimum; denoted as 1
-  lm = (ns-rs) .* (ns-ls);
-  lm(lm >= 0) = 1;
-  lm(lm < 0) = 0;
+  nsrs = (ns-rs);
+  nsls = (ns-ls);
+  nsrs(nsrs < 0) = 0;
+  nsls(nsls < 0) = 0;
+  lm = nsrs + nsls;
+  lm(lm < 0) = e;
+  lm(lm > 0) = e;
+  lm(lm == 0) = 1;
+  lm(lm == e) = 0;
 
   % find positions of all local minimum
   pos_v = find(lm);
@@ -43,11 +49,10 @@ function O = maskFilter(I, M, B=20)
 
   % Found threshold is increased by one due to trimming of histogram 
   % values in one of previous step.
-  T = hi(pos + 1)
+  T = hi(pos + 1);
 
   % threholding and creating new mask
   z(z_tmp > T) = 1;
-  %z(z_tmp <= T) = 0;
 
   % employing new mask
   O = I .* z;
