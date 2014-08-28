@@ -1,0 +1,1 @@
+/home/martin/NetBeansProjects/pokus/src/kersner/Human.java
