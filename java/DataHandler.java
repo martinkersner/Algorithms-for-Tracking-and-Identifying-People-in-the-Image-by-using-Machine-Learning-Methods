@@ -20,6 +20,11 @@ import org.opencv.core.Rect;
  */
 public class DataHandler {
 
+    /**
+     * Takes only first column of matrix and determine it as label column.
+     * @param m     matrix
+     * @return      first column of matrix
+     */
     public Mat getLabel(Mat m) {
         // get size of Mat
         int rows = m.rows();
@@ -29,6 +34,11 @@ public class DataHandler {
         return m.submat(trainRect);
     }
 
+    /**
+     * Takes all data from second columnt to the end from given matrix.
+     * @param m     matrix
+     * @return      all columns of matrix except of the first one
+     */
     public Mat getData(Mat m) {
         // get size of Mat
         int rows = m.rows();
@@ -39,6 +49,13 @@ public class DataHandler {
         return m.submat(trainRect);
     }
 
+    /**
+     * Reads CSV file and puts all data to Mat.
+     * @param filename      name ofCSV file
+     * @return              matrix of data taken from CSV file
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
     public Mat readCsv(String filename) throws FileNotFoundException, IOException {
         // get size of csv file
         CSVReader reader = new CSVReader(new FileReader(filename));

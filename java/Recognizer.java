@@ -1,15 +1,12 @@
 package kersner;
 
-import com.atul.JavaOpenCV.Imshow;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
-import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -18,17 +15,9 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
-import org.opencv.utils.Converters;
 import org.opencv.ml.CvSVM;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
-import java.io.FileNotFoundException;
-import java.lang.Double;
 
 /**
  * eclub.cvutmedialab.cz
@@ -81,10 +70,18 @@ public class Recognizer {
     }
     */
 
+    /**
+     * Loads a model from XML file.
+     * @param filename 
+     */
     public void loadModel(String filename) {
         orientationSVM.load(filename);
     }
     
+    /**
+     * Creates a model, then it stores to XML file in the same directory.
+     * @param dir   path to directory with training data 
+     */
     public void createModel(String dir) {
         Mat labels = new Mat(0, 0, CvType.CV_32FC1);
         Mat data = new Mat(0, 0, CvType.CV_32FC1);
@@ -117,10 +114,22 @@ public class Recognizer {
         orientationSVM.save(dir + "model.xml");
     }
 
+    /**
+     * Predicts a class of given image according to created model.
+     * @param sample    image
+     * @return          predicted class
+     */
     public float predict(Mat sample) {
         return orientationSVM.predict(sample);
     }
 
+    /**
+     * Computes histogram.
+     * @param img       image from which is histogram computed
+     * @param nbins     number of bins used for histogram computation
+     * @param maxValue  maximum intensity value which will be examined
+     * @return          1D histogram
+     */
     private Mat compHist(Mat img, int nbins, int maxValue) {
         List<Mat> imgHist = Arrays.asList(img);
         MatOfInt histSize = new MatOfInt(nbins);
@@ -132,6 +141,12 @@ public class Recognizer {
         return hist;
     }
 
+    /**
+     * Creates a bin used for histogram later.
+     * @param nbins     number of bins used for histogram computation
+     * @param maxValue  maximum intensity value which will be examined
+     * @return          bins
+     */
     private List<Integer> createBins(int nbins, int maxValue) {
         int stepHist = Math.round(maxValue / nbins);
         List<Integer> bins = new ArrayList<>();
@@ -143,6 +158,11 @@ public class Recognizer {
         return bins;
     }
 
+    /**
+     * Get all PNG file names from given directory.
+     * @param dir   path to directory
+     * @return      list of all PNG file names
+     */
     public List<String> getFilenames(String dir) {
         List<String> results = new ArrayList<>();
 
@@ -157,6 +177,11 @@ public class Recognizer {
         return results;
     }
 
+    /**
+     * Adds a padding to examined image to happen to be all images of the same size.
+     * @param img   image
+     * @return      image with padding
+     */
     private Mat addPadding(Mat img) {
         Mat paddImg = new Mat();
 
@@ -183,6 +208,14 @@ public class Recognizer {
         return paddImg;
     }
 
+    /**
+     * Preprocessing step of human detection.
+     * @param img       image
+     * @param mask      mask of scene
+     * @param nbins     number of bins used for histogram computation
+     * @param maxValue  maximum intensity value which will be examined
+     * @return          filtered image
+     */
     public Mat maskFilter(Mat img, Mat mask, int nbins, int maxValue) {
         // filtering background
         Mat diff = new Mat();
@@ -227,6 +260,13 @@ public class Recognizer {
         return img.mul(binMask);
     }
 
+    /**
+     * Detects head from given image.
+     * @param img       image
+     * @param nbins     number of bins used for histogram computation
+     * @param maxValue  maximum intensity value which will be examined
+     * @return          position of head center
+     */
     public Point detectHead(Mat img, int nbins, int maxValue) {
         int posBin = 2; // counted from the end
 
@@ -264,6 +304,11 @@ public class Recognizer {
         return p;
     }
 
+    /**
+     * Creates a kernel.
+     * @param dim   selection of kernel dimension 
+     * @return      kernel
+     */
     private Mat createKernel(boolean dim) {
         Mat kernel;
 
@@ -308,6 +353,11 @@ public class Recognizer {
         return rects;
     }
 
+    /**
+     * Normalize values of matrix according to L2-norm.
+     * @param mat   matrix
+     * @return      normalized matrix
+     */
     private Mat L2norm(Mat mat) {
         Mat nMat = new Mat();
 
@@ -326,6 +376,13 @@ public class Recognizer {
         return nMat;
     }
 
+    /**
+     * Computes histogram of oriented histograms from given image.
+     * @param img       image
+     * @param cells     coordinates of cells
+     * @param blocks    coordinates of blocks
+     * @return          features 
+     */
     public Mat hog(Mat img, List<Rect> cells, List<Rect> blocks) {
         Mat features = new Mat();
 
@@ -394,12 +451,13 @@ public class Recognizer {
 
         return features;
     }
-
-    private void track(Point position) {
-        // check already detected people
-        //  if it is too close to any of them, add actual position and 
-    }
     
+    /**
+     * Detects a human body in image and computes features from it.
+     * @param img       image
+     * @param nbins     number of bins used for histogram computation
+     * @param maxValue  maximum intensity value which will be examined
+     */
     public void detect(Mat img, int nbins, int maxValue) {
         // filtering
         Mat tmpImg = new Mat();
@@ -426,24 +484,6 @@ public class Recognizer {
                 // add padding to image
                 Mat paddImg = addPadding(sub);
                 hogFeatures = hog(paddImg, cells, blocks);
-                
-/*
-                // compute HoG features
-                hog(paddImg, cells, blocks);
-
-                // find centroid of head
-                Point p = detectHead(sub, nbins, maxValue);
-                p.x = p.x + rect.x;
-                p.y = p.y + rect.y;
-
-                // TODO: estimate rotation
-                // if inside inner rectangle and person rotated toward camera, take a screenshot of its RGB head
-                if (p.x > detectBorder && p.x < imgWidth - detectBorder && p.y > detectBorder && p.y < imgHeight - detectBorder) {
-                    Core.rectangle(img, new Point(p.x - rh, p.y - rh), new Point(p.x + rh, p.y + rh), new Scalar(255, 255, 255));
-                }
-
-                Core.circle(img, p, 1, new Scalar(0, 0, 0));
-*/
             }
         }
     }

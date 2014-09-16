@@ -12,17 +12,11 @@ public class Main {
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        //String imgFilename = "1A.png"; // 4
-        String imgFilename = "2A.png"; // 7
-        
+        String imgFilename = "image.png";
         String maskFilename = "mask.png";
 
         Mat mask = Highgui.imread(maskFilename, CvType.CV_8U);
         Mat img = Highgui.imread(imgFilename, CvType.CV_8U);        
-
-        // settings
-        int maxValue = 255; // max intensity value of grayscale image
-        int nbins = 20; // number of bins
         
         //DataHandler dataHandler = new DataHandler();        
         //Mat data = dataHandler.readCsv("data.csv");
@@ -40,8 +34,12 @@ public class Main {
         orientation.loadModel(modelFileName);
         
         // CREATE AND SAVE MODEL
-        //orientation.createModel("/folder/");
+        //orientation.createModel("/path/to/training/images/");
 
+        // settings
+        int maxValue = 255; // max intensity value of grayscale image
+        int nbins = 20; // number of bins
+        
         // IMAGE PREPROCESSING
         Mat filt = orientation.maskFilter(img, mask, nbins, maxValue);
         orientation.detect(filt, nbins, maxValue);
@@ -52,22 +50,29 @@ public class Main {
         
         ////////////////////////////////////////////////////////////////////////
         
-        // GENDER
-        imgFilename = "head1.png";
-        //imgFilename = "head2.png";
+        imgFilename = "image.png";
         Mat img2 = Highgui.imread(imgFilename, CvType.CV_8U); 
         
+        // GENDER
         Recognizer gender = new Recognizer();
-        gender.paddHeightMax = 71;
-        gender.paddWidthMax = 71;
-        gender.createModel("/folder2/");
+        int imgSize = 71;
+        gender.paddHeightMax = imgSize;
+        gender.paddWidthMax = imgSize;
+        
+        // CREATE AND SAVE MODEL
+        gender.createModel("/path/to/training/images/");
+        
+        int cellSize = 6;
+        int blockSize = 3;
+        nbins = 9;
         
         // create cells
-        List<Rect> cells = gender.genBlocks(71, 71, 6, 6);
+        List<Rect> cells = gender.genBlocks(imgSize, imgSize, cellSize, cellSize);
 
         // create blocks
-        List<Rect> blocks = gender.genBlocks((int) Math.floor(71 / 6), (int) Math.floor(71 / 6) * 9, 3, 3 * 9);
+        List<Rect> blocks = gender.genBlocks((int) Math.floor(imgSize / cellSize), (int) Math.floor(imgSize / cellSize)  *  nbins, blockSize, blockSize * nbins);
         
+        // USE MODEL
         float g = gender.predict(gender.hog(img2, cells, blocks));
         System.out.println(g);
         
