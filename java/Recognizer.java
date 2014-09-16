@@ -35,12 +35,22 @@ import java.lang.Double;
  * surmon.org/summer-camp-2014/martin-kersner/
  * @author Martin Kersner
  * @date 08-22-2014
+ * 
+ * 1 UPLEFT
+ * 2 UP
+ * 3 UPRIGHT
+ * 4 LEFT
+ * 5 RIGHT
+ * 6 DOWNLEFT
+ * 7 DOWN
+ * 8 DOWNRIGHT
+ * 9 NOTHING
  */
 public class Recognizer {
 
     // settings for seperating persons int the image
-    static final int paddHeightMax = 100;
-    static final int paddWidthMax = 110;
+    static int paddHeightMax = 100;
+    static int paddWidthMax = 110;
     static final int medianSize = 5; // need to be an odd number
     static final int minShapeSize = 300;
 
@@ -57,6 +67,8 @@ public class Recognizer {
     static final int sizeBlock = 3;
     static final int hogBins = 9;
     static final int maxDeg = 360;
+    
+    static Mat hogFeatures;
 
     // SVM orientation
     CvSVM orientationSVM = new CvSVM();
@@ -69,7 +81,11 @@ public class Recognizer {
     }
     */
 
-    public void createOrientationModel(String dir) {
+    public void loadModel(String filename) {
+        orientationSVM.load(filename);
+    }
+    
+    public void createModel(String dir) {
         Mat labels = new Mat(0, 0, CvType.CV_32FC1);
         Mat data = new Mat(0, 0, CvType.CV_32FC1);
 
@@ -96,9 +112,12 @@ public class Recognizer {
         
         // train model
         orientationSVM.train(data, labels);
+        
+        // save model
+        orientationSVM.save(dir + "model.xml");
     }
 
-    public float predictOrientation(Mat sample) {
+    public float predict(Mat sample) {
         return orientationSVM.predict(sample);
     }
 
@@ -270,7 +289,7 @@ public class Recognizer {
     }
 
     // not ready for overlaping
-    private List<Rect> genBlocks(int height, int width, int stepHeight, int stepWidth) {
+    public List<Rect> genBlocks(int height, int width, int stepHeight, int stepWidth) {
         List<Rect> rects = new ArrayList<>();
         Rect tmpRect;
 
@@ -381,7 +400,7 @@ public class Recognizer {
         //  if it is too close to any of them, add actual position and 
     }
     
-    public Mat detect(Mat img, int nbins, int maxValue) {
+    public void detect(Mat img, int nbins, int maxValue) {
         // filtering
         Mat tmpImg = new Mat();
         Imgproc.medianBlur(img, tmpImg, medianSize);
@@ -406,7 +425,9 @@ public class Recognizer {
 
                 // add padding to image
                 Mat paddImg = addPadding(sub);
-
+                hogFeatures = hog(paddImg, cells, blocks);
+                
+/*
                 // compute HoG features
                 hog(paddImg, cells, blocks);
 
@@ -422,9 +443,8 @@ public class Recognizer {
                 }
 
                 Core.circle(img, p, 1, new Scalar(0, 0, 0));
+*/
             }
         }
-
-        return img;
     }
 }
